@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.amazonaws.auth.profile.internal.AwsProfileNameLoader;
 import com.amazonaws.thirdparty.apache.codec.binary.StringUtils;
-import org.apache.iceberg.Schema;
-import org.apache.iceberg.Table;
+import org.apache.iceberg.*;
+import org.apache.iceberg.aws.AwsProperties;
 import org.apache.iceberg.aws.glue.GlueCatalog;
 import org.apache.iceberg.catalog.Catalog;
+import org.apache.iceberg.catalog.Namespace;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.catalog.TableIdentifier;
@@ -32,20 +33,38 @@ public class App
         System.out.println(schema.toString());
 
         //https://gist.github.com/hililiwei/ab1b5838740d07abbf59cf37afec0d04
-        Catalog catalog = new GlueCatalog();
+        GlueCatalog catalog = new GlueCatalog();
         Map<String,String> map = new HashMap<>();
-        map.put("warehouse","s3://songfuhao-bucket/songfuhao");
+        map.put("warehouse","s3://devs3sink/icebergTest/");
         map.put("io-impl","org.apache.iceberg.aws.s3.S3FileIO");
         String name = "test";
-        Map<String, String> properties = new HashMap<>();
+
+        Namespace namespace = Namespace.of("webapp");
+
         catalog.initialize("test",map);
+        Map<String,String> metadata =  new HashMap<>();
+        Table table = null;
+        TableIdentifier tableIdentifier = TableIdentifier.of(namespace, "logs");
+        if(!catalog.namespaceExists(namespace)) {
+            catalog.createNamespace(namespace,metadata);
+            table = catalog.createTable(tableIdentifier, schema, null);
+        }
+        else{
+            table = catalog.loadTable(tableIdentifier);
+            Transaction t = table.newTransaction();
+// commit operations to the transaction
+            PartitionSpec partitionSpec = PartitionSpec.builderFor(schema).build();
 
+            DataFile dataFile = DataFiles.builder(partitionSpec)
+                    .withPath("/path/to/data-a.parquet")
+                    .withFileSizeInBytes(10)
+                    .withRecordCount(1)
+                    .build();
+            t.newAppend().appendFile(dataFile).commit();
+// commit all the changes to the table
+            t.commitTransaction();
 
-
-        TableIdentifier name2 = TableIdentifier.of("logging", "logs");
-        Table table = catalog.createTable(name2, schema, null);
-
+        }
         System.out.println(table);
-
     }
 }
