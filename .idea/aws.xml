@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="accountSettings">
-    <option name="activeProfile" value="profile:providerdev" />
+    <option name="activeProfile" value="profile:bhanu" />
     <option name="activeRegion" value="eu-west-1" />
     <option name="recentlyUsedProfiles">
       <list>
+        <option value="profile:bhanu" />
         <option value="profile:providerdev" />
         <option value="profile:default" />
       </list>
