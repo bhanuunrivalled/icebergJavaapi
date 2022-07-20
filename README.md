@@ -1,2 +1,2 @@
-Using the Icerberg java API creating the z´table in GLUE 
+Using the Icerberg java API creating the  table in GLUE 
 
