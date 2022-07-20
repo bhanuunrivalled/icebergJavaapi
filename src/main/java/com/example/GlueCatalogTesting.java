@@ -46,7 +46,7 @@ public class GlueCatalogTesting {
     private static final Schema SCHEMA = new Schema(
             Types.NestedField.required(1, "id", Types.LongType.get()),
             Types.NestedField.optional(2, "data", Types.StringType.get()),
-            Types.NestedField.optional(3, "binary", Types.BinaryType.get()));
+            Types.NestedField.optional(3, "binary", Types.StringType.get()));
 
 
     //private PartitionSpec partitionSpec = PartitionSpec.builderFor(schema).build();
@@ -60,19 +60,23 @@ public class GlueCatalogTesting {
     }
 
     public void createTableAndAppend() throws IOException {
-        String namespace = createNamespace();
+      /*  String namespace = createNamespace();
         String tableName = getTableName();
-        Table iceBergTable = glueCatalog.createTable(TableIdentifier.of(namespace, tableName), SCHEMA);
+        Table iceBergTable = glueCatalog.createTable(TableIdentifier.of(namespace, tableName), SCHEMA);*/
         // verify table exists in Glue
-        GetTableResponse response = glue.getTable(GetTableRequest.builder().databaseName(namespace).name(tableName).build());
+        Table iceBergTable = glueCatalog.loadTable(TableIdentifier.of("webapps", "iceberg_table"));
 
-        Assert.assertEquals(namespace, response.table().databaseName());
-        Assert.assertEquals(tableName, response.table().name());
-        Assert.assertEquals(BaseMetastoreTableOperations.ICEBERG_TABLE_TYPE_VALUE.toUpperCase(Locale.ENGLISH), response.table().parameters().get(BaseMetastoreTableOperations.TABLE_TYPE_PROP));
-        Assert.assertTrue(response.table().parameters().containsKey(BaseMetastoreTableOperations.METADATA_LOCATION_PROP));
-        Assert.assertEquals(SCHEMA.columns().size(), response.table().storageDescriptor().columns().size());
-        DataFile recordsData = createRecords();
-        insert(iceBergTable, recordsData);
+        System.out.println(iceBergTable);
+
+        //GetTableResponse response = glue.getTable(GetTableRequest.builder().databaseName('webapp').name('iceberg_table').build());
+
+        //Assert.assertEquals(namespace, response.table().databaseName());
+        //Assert.assertEquals(tableName, response.table().name());
+       // Assert.assertEquals(BaseMetastoreTableOperations.ICEBERG_TABLE_TYPE_VALUE.toUpperCase(Locale.ENGLISH), response.table().parameters().get(BaseMetastoreTableOperations.TABLE_TYPE_PROP));
+        //Assert.assertTrue(response.table().parameters().containsKey(BaseMetastoreTableOperations.METADATA_LOCATION_PROP));
+       // Assert.assertEquals(SCHEMA.columns().size(), response.table().storageDescriptor().columns().size());
+         DataFile recordsData = createRecords();
+         insert(iceBergTable, recordsData);
     }
 
     private void insert(Table iceBergTable, DataFile recordsData) {
@@ -94,7 +98,7 @@ public class GlueCatalogTesting {
 
         this.records = builder.build();
 
-        File temp = new File("/tmp/bhanu.parquet");
+        File temp = new File("/tmp/bhanu");
         OutputFile file = Files.localOutput(temp);
 
         DataWriter<Record> dataWriter = Parquet.writeData(file)
