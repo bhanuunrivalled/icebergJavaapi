@@ -54,7 +54,7 @@ public class GlueCatalogTesting {
     public GlueCatalogTesting() {
         glueCatalog = new GlueCatalog();
         Map<String, String> properties = new HashMap<>();
-        properties.put(CatalogProperties.WAREHOUSE_LOCATION, "s3://icebergtestbhond/");
+        properties.put(CatalogProperties.WAREHOUSE_LOCATION, "s3://bucketname/");
         String catalogName = "glue";
         glueCatalog.initialize(catalogName, properties);
     }
